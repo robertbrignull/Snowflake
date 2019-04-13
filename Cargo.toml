@@ -1,0 +1,7 @@
+[package]
+name = "snowflake-rs"
+version = "0.1.0"
+authors = ["Robert Brignull <robertbrignull@gmail.com>"]
+edition = "2018"
+
+[dependencies]

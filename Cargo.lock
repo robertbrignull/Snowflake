@@ -1,0 +1,4 @@
+[[package]]
+name = "snowflake-rs"
+version = "0.1.0"
+
