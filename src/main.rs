@@ -17,10 +17,8 @@ fn main() {
     let args = parse_args();
 
     let num_points = args
-        .value_of("num-particles")
-        .unwrap_or("10000")
-        .parse::<u32>()
-        .expect("num-particles arg could not be parsed");
+        .value_of("num-particles").unwrap()
+        .parse::<u32>().expect("num-particles arg could not be parsed");
 
     grid.add_points(num_points);
 
@@ -33,7 +31,9 @@ fn parse_args() -> clap::ArgMatches<'static> {
         .arg(clap::Arg::with_name("num-particles")
             .short("n")
             .long("num-particles")
+            .number_of_values(1)
             .value_name("NUM")
-            .help("The number of particles to add to the flake"))
+            .help("The number of particles to add to the flake")
+            .default_value("10000"))
         .get_matches();
 }
