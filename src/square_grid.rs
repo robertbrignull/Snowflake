@@ -7,7 +7,6 @@ use crate::grid::Grid;
 
 pub struct SquareGrid {
     grid: Vec<Vec<bool>>,
-    w: usize,
 }
 
 impl SquareGrid {
@@ -18,14 +17,13 @@ impl SquareGrid {
 
         return SquareGrid {
             grid,
-            w,
         };
     }
 
     /** Is the given point nearly at the edge of the grid */
     fn should_increase_grid_size(&self, p: Point) -> bool {
-        let lb = self.w as f64 / 6.0;
-        let ub = self.w as f64 - lb;
+        let lb = self.grid.len() as f64 / 6.0;
+        let ub = self.grid.len() as f64 - lb;
         return p.x < lb ||
             p.x > ub ||
             p.y < lb ||
@@ -34,27 +32,26 @@ impl SquareGrid {
 
     /** Double the grid size */
     fn increase_grid_size(&mut self) {
-        let new_w = self.w * 2;
+        let new_w = self.grid.len() * 2;
         let mut new_grid = Vec::new();
 
         // Rows above the flake
-        for _i in 0..self.w / 2 {
+        for _i in 0..self.grid.len() / 2 {
             new_grid.push(vec![false; new_w]);
         }
 
         // Rows containing the flake
-        for i in 0..self.w {
+        for i in 0..self.grid.len() {
             let mut row = vec![false; new_w];
-            row[self.w / 2 .. self.w / 2 * 3].clone_from_slice(self.grid[i].as_slice());
+            row[self.grid.len() / 2 .. self.grid.len() / 2 * 3].clone_from_slice(self.grid[i].as_slice());
             new_grid.push(row);
         }
 
         // Rows below the flake
-        for _i in 0..self.w / 2 {
+        for _i in 0..self.grid.len() / 2 {
             new_grid.push(vec![false; new_w]);
         }
 
-        self.w = new_w;
         self.grid = new_grid;
     }
 
@@ -65,23 +62,23 @@ impl SquareGrid {
         return match dir {
             // up
             0 => Point {
-                x: rng.gen::<usize>().min(self.w - 1) as f64,
+                x: rng.gen::<usize>().min(self.grid.len() - 1) as f64,
                 y: 0.0,
             },
             // right
             1 => Point {
-                x: (self.w - 1) as f64,
-                y: rng.gen::<usize>().min(self.w - 1) as f64,
+                x: (self.grid.len() - 1) as f64,
+                y: rng.gen::<usize>().min(self.grid.len() - 1) as f64,
             },
             // down
             2 => Point {
-                x: rng.gen::<usize>().min(self.w - 1) as f64,
-                y: (self.w - 1) as f64,
+                x: rng.gen::<usize>().min(self.grid.len() - 1) as f64,
+                y: (self.grid.len() - 1) as f64,
             },
             // left
             _ => Point {
                 x: 0.0,
-                y: rng.gen::<usize>().min(self.w - 1) as f64,
+                y: rng.gen::<usize>().min(self.grid.len() - 1) as f64,
             },
         };
     }
@@ -97,13 +94,13 @@ impl SquareGrid {
             },
             // right
             1 => Point {
-                x: (point.x + 1.0).min((self.w - 1) as f64),
+                x: (point.x + 1.0).min((self.grid.len() - 1) as f64),
                 y: point.y,
             },
             // down
             2 => Point {
                 x: point.x,
-                y: (point.y + 1.0).min((self.w - 1) as f64),
+                y: (point.y + 1.0).min((self.grid.len() - 1) as f64),
             },
             // left
             _ => Point {
@@ -121,8 +118,8 @@ impl SquareGrid {
         // is already overlapping with the flake.
         return self.grid[x][y] ||
             (y > 0 && self.grid[x][y - 1]) ||
-            (x < self.w - 1 && self.grid[x + 1][y]) ||
-            (y < self.w - 1 && self.grid[x][y + 1]) ||
+            (x < self.grid.len() - 1 && self.grid[x + 1][y]) ||
+            (y < self.grid.len() - 1 && self.grid[x][y + 1]) ||
             (x > 0 && self.grid[x - 1][y]);
     }
 }
@@ -142,8 +139,8 @@ impl Grid for SquareGrid {
 
     fn list_points(&self) -> Vec<Point> {
         let mut points = Vec::new();
-        for y in 0..self.w {
-            for x in 0..self.w {
+        for y in 0..self.grid.len() {
+            for x in 0..self.grid.len() {
                 if self.grid[x][y] {
                     points.push(Point {
                         x: x as f64,
