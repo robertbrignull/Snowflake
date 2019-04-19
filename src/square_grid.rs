@@ -12,7 +12,7 @@ pub struct SquareGrid {
 
 impl SquareGrid {
     pub fn new() -> Self {
-        let w = 500;
+        let w = 40;
         let mut grid = vec![vec![false; w]; w];
         grid[w / 2][w / 2] = true;
 
