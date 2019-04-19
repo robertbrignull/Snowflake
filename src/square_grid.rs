@@ -5,45 +5,46 @@ use rand::Rng;
 use crate::data::Point;
 use crate::grid::Grid;
 
-const WIDTH: usize = 500;
-
 pub struct SquareGrid {
-    grid: [[bool; WIDTH]; WIDTH],
+    grid: Vec<Vec<bool>>,
+    w: usize,
 }
 
 impl SquareGrid {
     pub fn new() -> Self {
-        let mut grid = [[false; WIDTH]; WIDTH];
-        grid[WIDTH / 2][WIDTH / 2] = true;
+        let w = 500;
+        let mut grid = vec![vec![false; w]; w];
+        grid[w / 2][w / 2] = true;
 
         return SquareGrid {
             grid,
+            w,
         };
     }
 
-    fn get_start_position() -> Point {
+    fn get_start_position(&self) -> Point {
         let mut rng = rand::thread_rng();
         let dir = rng.gen::<u32>() % 4;
         return match dir {
             // up
             0 => Point {
-                x: rng.gen::<usize>().min(WIDTH - 1) as f64,
+                x: rng.gen::<usize>().min(self.w - 1) as f64,
                 y: 0.0,
             },
             // right
             1 => Point {
-                x: (WIDTH - 1) as f64,
-                y: rng.gen::<usize>().min(WIDTH - 1) as f64,
+                x: (self.w - 1) as f64,
+                y: rng.gen::<usize>().min(self.w - 1) as f64,
             },
             // down
             2 => Point {
-                x: rng.gen::<usize>().min(WIDTH - 1) as f64,
-                y: (WIDTH - 1) as f64,
+                x: rng.gen::<usize>().min(self.w - 1) as f64,
+                y: (self.w - 1) as f64,
             },
             // left
             _ => Point {
                 x: 0.0,
-                y: rng.gen::<usize>().min(WIDTH - 1) as f64,
+                y: rng.gen::<usize>().min(self.w - 1) as f64,
             },
         };
     }
@@ -58,13 +59,13 @@ impl SquareGrid {
             },
             // right
             1 => Point {
-                x: (point.x + 1.0).min((WIDTH - 1) as f64),
+                x: (point.x + 1.0).min((self.w - 1) as f64),
                 y: point.y,
             },
             // down
             2 => Point {
                 x: point.x,
-                y: (point.y + 1.0).min((WIDTH - 1) as f64),
+                y: (point.y + 1.0).min((self.w - 1) as f64),
             },
             // left
             _ => Point {
@@ -78,15 +79,15 @@ impl SquareGrid {
         let x = point.x as usize;
         let y = point.y as usize;
         return (y > 0 && self.grid[x][y - 1]) ||
-            (x < WIDTH - 1 && self.grid[x + 1][y]) ||
-            (y < WIDTH - 1 && self.grid[x][y + 1]) ||
+            (x < self.w - 1 && self.grid[x + 1][y]) ||
+            (y < self.w - 1 && self.grid[x][y + 1]) ||
             (x > 0 && self.grid[x - 1][y]);
     }
 }
 
 impl Grid for SquareGrid {
     fn add_point(&mut self) {
-        let mut point = SquareGrid::get_start_position();
+        let mut point = self.get_start_position();
         while !self.has_hit_flake(&point) {
             point = self.get_next_position(&point);
         }
@@ -95,8 +96,8 @@ impl Grid for SquareGrid {
 
     fn list_points(&self) -> Vec<Point> {
         let mut points = Vec::new();
-        for y in 0..WIDTH {
-            for x in 0..WIDTH {
+        for y in 0..self.w {
+            for x in 0..self.w {
                 if self.grid[x][y] {
                     points.push(Point {
                         x: x as f64,
