@@ -5,7 +5,7 @@ use crate::data::Point;
 
 const BORDER: f64 = 10.0;
 
-pub fn save_png(points: Vec<Point>) {
+pub fn save_png(points: Vec<Point>, output_filename: &str) {
     let mut top: f64 = INFINITY;
     let mut right: f64 = -INFINITY;
     let mut bottom: f64 = -INFINITY;
@@ -36,7 +36,7 @@ pub fn save_png(points: Vec<Point>) {
 
     // Save the buffer as "image.png"
     image::save_buffer(
-        &Path::new("output.png"),
+        &Path::new(output_filename),
         &buffer,
         width as u32,
         height as u32,
