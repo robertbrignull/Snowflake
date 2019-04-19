@@ -81,7 +81,10 @@ impl SquareGrid {
     fn has_hit_flake(&self, point: &Point) -> bool {
         let x = point.x as usize;
         let y = point.y as usize;
-        return (y > 0 && self.grid[x][y - 1]) ||
+        // It shouldn't happen but handle the case where it
+        // is already overlapping with the flake.
+        return self.grid[x][y] ||
+            (y > 0 && self.grid[x][y - 1]) ||
             (x < self.w - 1 && self.grid[x + 1][y]) ||
             (y < self.w - 1 && self.grid[x][y + 1]) ||
             (x > 0 && self.grid[x - 1][y]);
