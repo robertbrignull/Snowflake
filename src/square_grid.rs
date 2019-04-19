@@ -10,6 +10,7 @@ const BORDER: f64 = 20.0;
 
 pub struct SquareGrid {
     grid: Vec<Vec<bool>>,
+    num_points: u32,
     radius: f64,
     rotational: u32,
     reflectional: u32,
@@ -34,6 +35,7 @@ impl SquareGrid {
 
         return SquareGrid {
             grid,
+            num_points: 0,
             radius: BORDER,
             rotational,
             reflectional,
@@ -129,24 +131,29 @@ impl SquareGrid {
 
         if self.rotational >= 2 {
             self.grid[c - dx as usize][c - dy as usize] = true;
+            self.num_points += 1;
         }
         if self.rotational == 4 {
             self.grid[c - dy as usize][c + dx as usize] = true;
             self.grid[c + dy as usize][c - dx as usize] = true;
+            self.num_points += 2;
         }
 
         if self.reflectional >= 1 {
             self.grid[c - dx as usize][c + dy as usize] = true;
+            self.num_points += 1;
         }
         if self.reflectional >= 2 {
             self.grid[c + dx as usize][c - dy as usize] = true;
             self.grid[c - dx as usize][c - dy as usize] = true;
+            self.num_points += 2;
         }
         if self.reflectional == 4 {
             self.grid[c + dy as usize][c + dx as usize] = true;
             self.grid[c + dy as usize][c - dx as usize] = true;
             self.grid[c - dy as usize][c + dx as usize] = true;
             self.grid[c - dy as usize][c - dx as usize] = true;
+            self.num_points += 4;
         }
     }
 }
@@ -158,6 +165,7 @@ impl Grid for SquareGrid {
             point = self.get_next_position(point);
         }
         self.grid[point.x as usize][point.y as usize] = true;
+        self.num_points += 1;
         self.radius = self.radius.max(self.distance_to_centre(&point) + 10.0);
 
         self.add_symmetry_points(&point);
@@ -166,6 +174,10 @@ impl Grid for SquareGrid {
         if self.radius >= self.grid.len() as f64 / 2.0 - 10.0 {
             self.increase_grid_size();
         }
+    }
+
+    fn get_num_points(&self) -> u32 {
+        return self.num_points;
     }
 
     fn list_points(&self) -> Vec<Point> {
