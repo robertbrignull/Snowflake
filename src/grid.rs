@@ -4,7 +4,7 @@ use crate::data::Point;
 
 pub trait Grid {
     /** Add multiple points to the flake */
-    fn add_points(&mut self, num_points: i32) {
+    fn add_points(&mut self, num_points: u32) {
         let mut t = Instant::now();
         for i in 0..num_points {
             self.add_point();
