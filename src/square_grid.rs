@@ -22,6 +22,42 @@ impl SquareGrid {
         };
     }
 
+    /** Is the given point nearly at the edge of the grid */
+    fn should_increase_grid_size(&self, p: Point) -> bool {
+        let lb = self.w as f64 / 6.0;
+        let ub = self.w as f64 - lb;
+        return p.x < lb ||
+            p.x > ub ||
+            p.y < lb ||
+            p.y > ub;
+    }
+
+    /** Double the grid size */
+    fn increase_grid_size(&mut self) {
+        let new_w = self.w * 2;
+        let mut new_grid = Vec::new();
+
+        // Rows above the flake
+        for _i in 0..self.w / 2 {
+            new_grid.push(vec![false; new_w]);
+        }
+
+        // Rows containing the flake
+        for i in 0..self.w {
+            let mut row = vec![false; new_w];
+            row[self.w / 2 .. self.w / 2 * 3].clone_from_slice(self.grid[i].as_slice());
+            new_grid.push(row);
+        }
+
+        // Rows below the flake
+        for _i in 0..self.w / 2 {
+            new_grid.push(vec![false; new_w]);
+        }
+
+        self.w = new_w;
+        self.grid = new_grid;
+    }
+
     /** Get a random position of the border of the grid */
     fn get_start_position(&self) -> Point {
         let mut rng = rand::thread_rng();
@@ -98,6 +134,10 @@ impl Grid for SquareGrid {
             point = self.get_next_position(&point);
         }
         self.grid[point.x as usize][point.y as usize] = true;
+
+        if self.should_increase_grid_size(point) {
+            self.increase_grid_size();
+        }
     }
 
     fn list_points(&self) -> Vec<Point> {
