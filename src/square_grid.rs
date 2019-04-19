@@ -22,6 +22,7 @@ impl SquareGrid {
         };
     }
 
+    /** Get a random position of the border of the grid */
     fn get_start_position(&self) -> Point {
         let mut rng = rand::thread_rng();
         let dir = rng.gen::<u32>() % 4;
@@ -49,6 +50,7 @@ impl SquareGrid {
         };
     }
 
+    /** Walk the particle one step */
     fn get_next_position(&self, point: &Point) -> Point {
         let dir = rand::thread_rng().gen::<u32>() % 4;
         return match dir {
@@ -75,6 +77,7 @@ impl SquareGrid {
         };
     }
 
+    /** Is the given point in contact with the flake */
     fn has_hit_flake(&self, point: &Point) -> bool {
         let x = point.x as usize;
         let y = point.y as usize;

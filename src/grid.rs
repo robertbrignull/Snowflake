@@ -3,6 +3,7 @@ use std::time::Instant;
 use crate::data::Point;
 
 pub trait Grid {
+    /** Add multiple points to the flake */
     fn add_points(&mut self, num_points: i32) {
         let mut t = Instant::now();
         for i in 0..num_points {
@@ -16,7 +17,9 @@ pub trait Grid {
         }
     }
 
+    /** Add a single point to the flake */
     fn add_point(&mut self);
 
+    /** List all the points in the flake */
     fn list_points(&self) -> Vec<Point>;
 }
