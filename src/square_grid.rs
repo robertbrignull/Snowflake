@@ -11,10 +11,23 @@ const BORDER: f64 = 20.0;
 pub struct SquareGrid {
     grid: Vec<Vec<bool>>,
     radius: f64,
+    rotational: u32,
+    reflectional: u32,
 }
 
 impl SquareGrid {
-    pub fn new() -> Self {
+    pub fn new(rotational: u32, reflectional: u32) -> Self {
+
+        if !SquareGrid::is_valid_symmetry_level(rotational) {
+            panic!("Unsupported symmetry level ({}) for square grid", rotational);
+        }
+        if !SquareGrid::is_valid_symmetry_level(reflectional) {
+            panic!("Unsupported symmetry level ({}) for square grid", rotational);
+        }
+        if rotational > 0 && reflectional > 0 {
+            panic!("Cannot specify both rotational and reflectional symmetry");
+        }
+
         let w = BORDER as usize * 2 + 100;
         let mut grid = vec![vec![false; w]; w];
         grid[w / 2][w / 2] = true;
@@ -22,7 +35,13 @@ impl SquareGrid {
         return SquareGrid {
             grid,
             radius: BORDER,
+            rotational,
+            reflectional,
         };
+    }
+
+    fn is_valid_symmetry_level(num: u32) -> bool {
+        return num == 0 || num == 1 || num == 2 || num == 4;
     }
 
     /** The distance from the given point to the centre of the grid */
@@ -101,6 +120,35 @@ impl SquareGrid {
             self.grid[x][y + 1] ||
             self.grid[x - 1][y];
     }
+
+    /** Add any extra points to maintain the symmetry */
+    fn add_symmetry_points(&mut self, point: &Point) {
+        let c = self.grid.len() / 2;
+        let dx = point.x as i32 - c as i32;
+        let dy = point.y as i32 - c as i32;
+
+        if self.rotational >= 2 {
+            self.grid[c - dx as usize][c - dy as usize] = true;
+        }
+        if self.rotational == 4 {
+            self.grid[c - dy as usize][c + dx as usize] = true;
+            self.grid[c + dy as usize][c - dx as usize] = true;
+        }
+
+        if self.reflectional >= 1 {
+            self.grid[c - dx as usize][c + dy as usize] = true;
+        }
+        if self.reflectional >= 2 {
+            self.grid[c + dx as usize][c - dy as usize] = true;
+            self.grid[c - dx as usize][c - dy as usize] = true;
+        }
+        if self.reflectional == 4 {
+            self.grid[c + dy as usize][c + dx as usize] = true;
+            self.grid[c + dy as usize][c - dx as usize] = true;
+            self.grid[c - dy as usize][c + dx as usize] = true;
+            self.grid[c - dy as usize][c - dx as usize] = true;
+        }
+    }
 }
 
 impl Grid for SquareGrid {
@@ -111,6 +159,8 @@ impl Grid for SquareGrid {
         }
         self.grid[point.x as usize][point.y as usize] = true;
         self.radius = self.radius.max(self.distance_to_centre(&point) + 10.0);
+
+        self.add_symmetry_points(&point);
 
         // If we're even getting close to the grid then increase the size
         if self.radius >= self.grid.len() as f64 / 2.0 - 10.0 {
