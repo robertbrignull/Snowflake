@@ -16,6 +16,13 @@ pub struct SquareGrid {
     reflectional: u32,
 }
 
+/** Defines a point on the square grid, where (0, 0) is the centre */
+#[derive(Clone, Copy)]
+struct GridPoint {
+    x: i32,
+    y: i32,
+}
+
 impl SquareGrid {
     pub fn new(rotational: u32, reflectional: u32) -> Self {
 
@@ -47,11 +54,9 @@ impl SquareGrid {
     }
 
     /** The distance from the given point to the centre of the grid */
-    fn distance_to_centre(&self, point: &Point) -> f64 {
-        let c = (self.grid.len() / 2) as f64;
-        let d = (point.x - c) * (point.x - c) +
-            (point.y - c) * (point.y - c);
-        return d.sqrt();
+    fn distance_to_centre(&self, point: GridPoint) -> f64 {
+        let d = point.x * point.x + point.y * point.y;
+        return (d as f64).sqrt();
     }
 
     /** Double the grid size */
@@ -80,28 +85,25 @@ impl SquareGrid {
     }
 
     /** Get a random position of the border of the grid */
-    fn get_start_position(&self) -> Point {
+    fn get_start_position(&self) -> GridPoint {
         let dir = rand::thread_rng().gen::<f64>() * PI * 2.0;
         // Round towards zero to keep inside the radius
-        let dx = (self.radius * dir.sin()).trunc();
-        let dy = (self.radius * dir.cos()).trunc();
-
-        return Point {
-            x: self.grid.len() as f64 / 2.0 + dx,
-            y: self.grid.len() as f64 / 2.0 + dy,
+        return GridPoint {
+            x: (self.radius * dir.sin()).trunc() as i32,
+            y: (self.radius * dir.cos()).trunc() as i32,
         };
     }
 
     /** Walk the particle one step */
-    fn get_next_position(&self, point: Point) -> Point {
+    fn get_next_position(&self, point: GridPoint) -> GridPoint {
         let dir = rand::thread_rng().gen::<u32>() % 4;
         let new_point = match dir {
-            0 => Point { x: point.x,       y: point.y - 1.0 },
-            1 => Point { x: point.x + 1.0, y: point.y       },
-            2 => Point { x: point.x,       y: point.y + 1.0 },
-            _ => Point { x: point.x - 1.0, y: point.y       },
+            0 => GridPoint { x: point.x,     y: point.y - 1 },
+            1 => GridPoint { x: point.x + 1, y: point.y     },
+            2 => GridPoint { x: point.x,     y: point.y + 1 },
+            _ => GridPoint { x: point.x - 1, y: point.y     },
         };
-        if self.distance_to_centre(&new_point) < self.radius {
+        if self.distance_to_centre(new_point) < self.radius {
             return new_point;
         } else {
             return point;
@@ -109,9 +111,10 @@ impl SquareGrid {
     }
 
     /** Is the given point in contact with the flake */
-    fn has_hit_flake(&self, point: &Point) -> bool {
-        let x = point.x as usize;
-        let y = point.y as usize;
+    fn has_hit_flake(&self, point: GridPoint) -> bool {
+        let c = self.grid.len() as i32 / 2;
+        let x = (point.x + c) as usize;
+        let y = (point.y + c) as usize;
         // It shouldn't happen but handle the case where it
         // is already overlapping with the flake.
         return self.grid[x][y] ||
@@ -123,36 +126,41 @@ impl SquareGrid {
             self.grid[x - 1][y];
     }
 
+    fn add(&mut self, point: GridPoint) {
+        let c = (self.grid.len() / 2) as i32;
+        let x = (point.x + c) as usize;
+        let y = (point.y + c) as usize;
+        self.grid[x][y] = true;
+    }
+
     /** Add any extra points to maintain the symmetry */
-    fn add_symmetry_points(&mut self, point: &Point) {
-        let c = self.grid.len() / 2;
-        let dx = point.x as i32 - c as i32;
-        let dy = point.y as i32 - c as i32;
+    fn add_symmetry_points(&mut self, point: GridPoint) {
+        let c = self.grid.len() as i32 / 2;
 
         if self.rotational >= 2 {
-            self.grid[c - dx as usize][c - dy as usize] = true;
+            self.add(GridPoint { x: c - point.x, y: c - point.y });
             self.num_points += 1;
         }
         if self.rotational == 4 {
-            self.grid[c - dy as usize][c + dx as usize] = true;
-            self.grid[c + dy as usize][c - dx as usize] = true;
+            self.add(GridPoint { x: c - point.y, y: c + point.x });
+            self.add(GridPoint { x: c + point.y, y: c - point.x });
             self.num_points += 2;
         }
 
         if self.reflectional >= 1 {
-            self.grid[c - dx as usize][c + dy as usize] = true;
+            self.add(GridPoint { x: c - point.x, y: c + point.y });
             self.num_points += 1;
         }
         if self.reflectional >= 2 {
-            self.grid[c + dx as usize][c - dy as usize] = true;
-            self.grid[c - dx as usize][c - dy as usize] = true;
+            self.add(GridPoint { x: c + point.x, y: c - point.y });
+            self.add(GridPoint { x: c - point.x, y: c - point.y });
             self.num_points += 2;
         }
         if self.reflectional == 4 {
-            self.grid[c + dy as usize][c + dx as usize] = true;
-            self.grid[c + dy as usize][c - dx as usize] = true;
-            self.grid[c - dy as usize][c + dx as usize] = true;
-            self.grid[c - dy as usize][c - dx as usize] = true;
+            self.add(GridPoint { x: c + point.y, y: c + point.x });
+            self.add(GridPoint { x: c + point.y, y: c - point.x });
+            self.add(GridPoint { x: c - point.y, y: c + point.x });
+            self.add(GridPoint { x: c - point.y, y: c - point.x });
             self.num_points += 4;
         }
     }
@@ -161,14 +169,14 @@ impl SquareGrid {
 impl Grid for SquareGrid {
     fn add_point(&mut self) {
         let mut point = self.get_start_position();
-        while !self.has_hit_flake(&point) {
+        while !self.has_hit_flake(point) {
             point = self.get_next_position(point);
         }
-        self.grid[point.x as usize][point.y as usize] = true;
+        self.add(point);
         self.num_points += 1;
-        self.radius = self.radius.max(self.distance_to_centre(&point) + BORDER);
+        self.radius = self.radius.max(self.distance_to_centre(point) + BORDER);
 
-        self.add_symmetry_points(&point);
+        self.add_symmetry_points(point);
 
         // If we're even getting close to the grid then increase the size
         if self.radius >= self.grid.len() as f64 / 2.0 - 10.0 {
