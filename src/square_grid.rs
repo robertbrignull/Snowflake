@@ -166,7 +166,7 @@ impl Grid for SquareGrid {
         }
         self.grid[point.x as usize][point.y as usize] = true;
         self.num_points += 1;
-        self.radius = self.radius.max(self.distance_to_centre(&point) + 10.0);
+        self.radius = self.radius.max(self.distance_to_centre(&point) + BORDER);
 
         self.add_symmetry_points(&point);
 
