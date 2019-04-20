@@ -14,6 +14,9 @@ use crate::square_grid::SquareGrid;
 fn main() {
     let args = parse_args();
 
+    let grid = args
+        .value_of("grid-type").unwrap();
+
     let num_points = args
         .value_of("num-particles").unwrap()
         .parse::<u32>().expect("num-particles arg could not be parsed");
@@ -28,10 +31,13 @@ fn main() {
 
     let output = args.value_of("output").unwrap();
 
-    let mut grid: Box<Grid> = Box::new(SquareGrid::new(
-        rotational,
-        reflectional,
-    ));
+    let mut grid: Box<Grid> = match grid {
+        "square" => Box::new(SquareGrid::new(
+            rotational,
+            reflectional,
+        )),
+        _ => panic!("Unknown grid type: {}", grid)
+    };
 
     grid.add_points(num_points);
 
@@ -41,6 +47,14 @@ fn main() {
 fn parse_args() -> clap::ArgMatches<'static> {
     return clap::App::new("snowflake-rs")
         .about("Generates snowflakes through random motion")
+        .arg(clap::Arg::with_name("grid-type")
+            .short("g")
+            .long("grid")
+            .number_of_values(1)
+            .value_name("TYPE")
+            .possible_values(&["square"])
+            .required(true)
+            .help("The type of grid to use"))
         .arg(clap::Arg::with_name("num-particles")
             .short("n")
             .long("num-particles")
