@@ -5,6 +5,7 @@ authors = ["Robert Brignull <robertbrignull@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+anyhow = "1.0.21"
+clap = "2.33.3"
 image = "0.23.14"
 rand = "0.8.4"
-clap = "2.33.3"

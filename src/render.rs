@@ -1,11 +1,15 @@
 use std::f64::INFINITY;
 use std::path::Path;
 
-use crate::data::Point;
+use anyhow::{Context, Result};
+
+use crate::flake::Flake;
 
 const BORDER: f64 = 10.0;
 
-pub fn save_png(points: Vec<Point>, output_filename: &str) {
+pub fn render(flake: &Flake, output_filename: &str) -> Result<()> {
+    let points = flake.get_points().context("Unable to get points for flake")?;
+
     let mut top: f64 = INFINITY;
     let mut right: f64 = -INFINITY;
     let mut bottom: f64 = -INFINITY;
@@ -40,6 +44,9 @@ pub fn save_png(points: Vec<Point>, output_filename: &str) {
         &buffer,
         width as u32,
         height as u32,
-        image::ColorType::Rgb8)
-        .expect("Unable to save image");
+        image::ColorType::Rgb8,
+    )
+    .context("Unable to save image buffer to file")?;
+
+    return Result::Ok(());
 }
