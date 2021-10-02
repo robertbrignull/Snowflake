@@ -31,7 +31,7 @@ fn main() {
 
     let output = args.value_of("output").unwrap();
 
-    let mut grid: Box<Grid> = match grid {
+    let mut grid: Box<dyn Grid> = match grid {
         "square" => Box::new(SquareGrid::new(
             rotational,
             reflectional,

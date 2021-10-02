@@ -40,6 +40,6 @@ pub fn save_png(points: Vec<Point>, output_filename: &str) {
         &buffer,
         width as u32,
         height as u32,
-        image::RGB(8))
+        image::ColorType::Rgb8)
         .expect("Unable to save image");
 }
