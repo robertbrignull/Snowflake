@@ -1,5 +1,5 @@
 [package]
-name = "snowflake-rs"
+name = "snowflake"
 version = "0.1.0"
 authors = ["Robert Brignull <robertbrignull@gmail.com>"]
 edition = "2018"
