@@ -52,10 +52,13 @@ impl QuadTree {
 
 #[cfg(test)]
 mod tests {
+    use rand::{Rng,SeedableRng};
+    use rand::rngs::StdRng;
+
     use super::QuadTree;
     use crate::flake::Flake;
     use crate::point::Point;
-    use crate::test_utils::test::with_test_dir;
+    use crate::test_utils::test::{time_func, with_test_dir};
 
     #[test]
     fn is_empty() {
@@ -106,6 +109,62 @@ mod tests {
 
             tree.add_point(Point { x: 10.0, y: 0.0 });
             assert_eq!(10.0, tree.get_farthest_distance());
+        });
+    }
+
+    /*
+     * Last recorded performance:
+     *
+     * Time to add 100000 points: 962.388µs
+     * Time per point: 9ns
+     * 
+     * Time to query 100000 points: 8.056774258s
+     * Time per point: 80.567µs
+     */
+    #[test]
+    #[ignore]
+    fn insertion_and_query_100000_perf() {
+        with_test_dir(|test_dir: &str| {
+            let flake = Flake::new(&format!("{}/test.flake", test_dir));
+            let mut tree = QuadTree::from_flake(&flake).expect("Unable to make flake");
+
+            let mut rng = StdRng::seed_from_u64(17);
+
+            let num_points = 100000;
+            let mut points: Vec<Point> = Vec::new();
+            for _i in 0..num_points {
+                points.push(Point {
+                    x: rng.gen_range(-1000.0..1000.0),
+                    y: rng.gen_range(-1000.0..1000.0),
+                });
+            }
+            
+            let adding_time = time_func(|| {
+                for point in points {
+                    tree.add_point(point);
+                }
+            });
+            println!("Time to add {} points: {:?}", num_points, adding_time);
+            println!("Time per point: {:?}", adding_time / num_points);
+            println!();
+
+            let num_query_points = 100000;
+            let mut query_points: Vec<Point> = Vec::new();
+            for _i in 0..num_query_points {
+                query_points.push(Point {
+                    x: rng.gen_range(-1000.0..1000.0),
+                    y: rng.gen_range(-1000.0..1000.0),
+                });
+            }
+
+            let querying_time = time_func(|| {
+                for query_point in query_points {
+                    assert!(tree.get_nearest(query_point).1 > 0.0);
+                }
+            });
+            println!("Time to query {} points: {:?}", num_query_points, querying_time);
+            println!("Time per point: {:?}", querying_time / num_query_points);
+            println!();
         });
     }
 }
