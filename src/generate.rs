@@ -43,7 +43,7 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
         let destruction_radius = construction_radius * 2.0;
 
         let mut point = new_point(construction_radius, &mut rng);
-        let mut distance_to_flake = tree.get_nearest_point(point).distance(point);
+        let mut distance_to_flake = tree.get_nearest(point).1;
 
         while distance_to_flake > 2.0 {
             let r = rng.gen_range(0.0..PI * 2.0);
@@ -54,7 +54,7 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
                 point = new_point(construction_radius, &mut rng);
             }
 
-            distance_to_flake = tree.get_nearest_point(point).distance(point);
+            distance_to_flake = tree.get_nearest(point).1;
         }
 
         println!("Adding point {}/{} : {}", i, num_points, point);

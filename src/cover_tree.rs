@@ -32,7 +32,7 @@ impl CoverTree {
         self.farthest_distance = self.farthest_distance.max(point.distance(Point::ZERO));
     }
 
-    pub fn get_nearest_point(&self, point: Point) -> Point {
+    pub fn get_nearest(&self, point: Point) -> (Point, f64) {
         let mut nearest_point = self.points[0];
         let mut min_distance_2 = nearest_point.distance_2(point);
         for point_2 in &self.points[1..] {
