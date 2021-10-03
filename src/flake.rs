@@ -89,6 +89,47 @@ mod tests {
     use crate::test_utils::test::{time_func, with_test_dir};
 
     #[test]
+    fn get_points_for_empty_file() {
+        with_test_dir(|test_dir: &str| {
+            let flake_file = format!("{}/test.flake", test_dir);
+            let flake = Flake::new(&flake_file);
+            assert_eq!(0, flake.get_points().expect("Unable to get points").len());
+        });
+    }
+
+    #[test]
+    fn write_points_to_new_file() {
+        with_test_dir(|test_dir: &str| {
+            let flake_file = format!("{}/test.flake", test_dir);
+            let mut flake = Flake::new(&flake_file);
+            flake
+                .add_point(Point { x: 0.0, y: 0.0 })
+                .expect("Unable to add point");
+            flake.flush().expect("Unable to flush");
+        });
+    }
+
+    #[test]
+    fn write_points_to_existing_file() {
+        with_test_dir(|test_dir: &str| {
+            let flake_file = format!("{}/test.flake", test_dir);
+
+            let mut flake = Flake::new(&flake_file);
+            flake
+                .add_point(Point { x: 0.0, y: 0.0 })
+                .expect("Unable to add point");
+            flake.flush().expect("Unable to flush");
+
+            // Do the same thing but with a new flake object
+            let mut flake = Flake::new(&flake_file);
+            flake
+                .add_point(Point { x: 1.0, y: 1.0 })
+                .expect("Unable to add point");
+            flake.flush().expect("Unable to flush");
+        });
+    }
+
+    #[test]
     fn roundtrip() {
         with_test_dir(|test_dir: &str| {
             let flake_file = format!("{}/test.flake", test_dir);
