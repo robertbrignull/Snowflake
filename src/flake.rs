@@ -114,6 +114,15 @@ mod tests {
         });
     }
 
+    /*
+     * Last recorded performance:
+     *
+     * Time to write 10000000 points: 195.548667ms
+     * Time per point: 19ns
+     *
+     * Time to read 10000000 points: 97.262104ms
+     * Time per point: 9ns
+     */
     #[test]
     #[ignore]
     fn roundtrip_perf() {
