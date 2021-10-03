@@ -74,3 +74,77 @@ impl Flake {
         return Result::Ok(());
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use rand::Rng;
+
+    use super::Flake;
+    use crate::point::Point;
+    use crate::test_utils::test::{time_func, with_test_dir};
+
+    #[test]
+    fn roundtrip() {
+        with_test_dir(|test_dir: &str| {
+            let flake_file = format!("{}/test.flake", test_dir);
+            let mut flake = Flake::new(&flake_file);
+
+            let num_points = 1500;
+            for i in 0..num_points {
+                flake
+                    .add_point(Point {
+                        x: i as f64,
+                        y: i as f64,
+                    })
+                    .expect("Unable to add point");
+            }
+            flake.flush().expect("Unable to flush");
+
+            let points = flake.get_points().expect("Unable to get points");
+            assert_eq!(num_points, points.len());
+            for i in 0..num_points {
+                assert_eq!(i as f64, points[i].x);
+                assert_eq!(i as f64, points[i].y);
+            }
+        });
+    }
+
+    #[test]
+    #[ignore]
+    fn roundtrip_perf() {
+        with_test_dir(|test_dir: &str| {
+            let flake_file = format!("{}/test.flake", test_dir);
+            let mut flake = Flake::new(&flake_file);
+
+            let num_points = 10000000;
+            let mut points: Vec<Point> = Vec::new();
+            let mut rng = rand::thread_rng();
+            for _i in 0..num_points {
+                points.push(Point {
+                    x: rng.gen_range(-1000.0..1000.0),
+                    y: rng.gen_range(-1000.0..1000.0),
+                });
+            }
+
+            let write_time = time_func(|| {
+                for point in points {
+                    flake.add_point(point).expect("Unable to add point");
+                }
+                flake.flush().expect("Unable to flush");
+            });
+            println!("Time to write {} points: {:?}", num_points, write_time);
+            println!("Time per point: {:?}", write_time / num_points);
+            println!();
+
+            let read_time = time_func(|| {
+                assert_eq!(
+                    num_points as usize,
+                    flake.get_points().expect("Unable to get points").len()
+                );
+            });
+            println!("Time to read {} points: {:?}", num_points, read_time);
+            println!("Time per point: {:?}", read_time / num_points);
+            println!();
+        });
+    }
+}

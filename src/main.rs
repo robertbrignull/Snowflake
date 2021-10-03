@@ -8,6 +8,7 @@ mod flake;
 mod generate;
 mod point;
 mod render;
+mod test_utils;
 
 use crate::flake::Flake;
 use crate::generate::{generate, Symmetry};
