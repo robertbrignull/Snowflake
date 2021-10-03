@@ -3,9 +3,9 @@ use std::f64::consts::PI;
 use anyhow::{Context, Result};
 use rand::{Rng, RngCore};
 
-use crate::cover_tree::CoverTree;
 use crate::flake::Flake;
 use crate::point::Point;
+use crate::quad_tree::QuadTree;
 
 pub enum Symmetry {
     None,
@@ -26,7 +26,7 @@ impl Symmetry {
 }
 
 pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>) -> Result<()> {
-    let mut tree = CoverTree::from_flake(flake)?;
+    let mut tree = QuadTree::from_flake(flake)?;
 
     if tree.is_empty() {
         tree.add_point(Point::ZERO);

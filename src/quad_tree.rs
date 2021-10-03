@@ -3,13 +3,13 @@ use anyhow::{Context, Result};
 use crate::flake::Flake;
 use crate::point::Point;
 
-pub struct CoverTree {
+pub struct QuadTree {
     points: Vec<Point>,
     farthest_distance: f64,
 }
 
-impl CoverTree {
-    pub fn from_flake(flake: &Flake) -> Result<CoverTree> {
+impl QuadTree {
+    pub fn from_flake(flake: &Flake) -> Result<QuadTree> {
         let points = flake.get_points().context("Unable to get flake points")?;
 
         let mut farthest_distance: f64 = 0.0;
@@ -17,7 +17,7 @@ impl CoverTree {
             farthest_distance = farthest_distance.max(point.distance(Point::ZERO));
         }
 
-        return Result::Ok(CoverTree {
+        return Result::Ok(QuadTree {
             points,
             farthest_distance,
         });
@@ -52,7 +52,7 @@ impl CoverTree {
 
 #[cfg(test)]
 mod tests {
-    use super::CoverTree;
+    use super::QuadTree;
     use crate::flake::Flake;
     use crate::point::Point;
     use crate::test_utils::test::with_test_dir;
@@ -61,7 +61,7 @@ mod tests {
     fn is_empty() {
         with_test_dir(|test_dir: &str| {
             let flake = Flake::new(&format!("{}/test.flake", test_dir));
-            let mut tree = CoverTree::from_flake(&flake).expect("Unable to make flake");
+            let mut tree = QuadTree::from_flake(&flake).expect("Unable to make flake");
             assert_eq!(true, tree.is_empty());
 
             tree.add_point(Point::ZERO);
@@ -73,7 +73,7 @@ mod tests {
     fn get_nearest() {
         with_test_dir(|test_dir: &str| {
             let flake = Flake::new(&format!("{}/test.flake", test_dir));
-            let mut tree = CoverTree::from_flake(&flake).expect("Unable to make flake");
+            let mut tree = QuadTree::from_flake(&flake).expect("Unable to make flake");
 
             tree.add_point(Point::ZERO);
             assert_eq!(0.0, tree.get_nearest(Point::ZERO).1);
@@ -96,7 +96,7 @@ mod tests {
     fn get_farthest_distance() {
         with_test_dir(|test_dir: &str| {
             let flake = Flake::new(&format!("{}/test.flake", test_dir));
-            let mut tree = CoverTree::from_flake(&flake).expect("Unable to make flake");
+            let mut tree = QuadTree::from_flake(&flake).expect("Unable to make flake");
 
             tree.add_point(Point::ZERO);
             assert_eq!(0.0, tree.get_farthest_distance());

@@ -3,10 +3,10 @@ extern crate anyhow;
 extern crate image;
 extern crate rand;
 
-mod cover_tree;
 mod flake;
 mod generate;
 mod point;
+mod quad_tree;
 mod render;
 mod test_utils;
 
