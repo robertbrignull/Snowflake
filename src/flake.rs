@@ -30,16 +30,21 @@ impl Flake {
         }
 
         let mut f = File::open(&self.flake_file)?;
-        let mut x_buf: [u8; 8] = [0; 8];
-        let mut y_buf: [u8; 8] = [0; 8];
+        let mut buf: [u8; 16 * MAX_BUFFERED_POINTS] = [0; 16 * MAX_BUFFERED_POINTS];
+        let mut f64_buf: [u8; 8] = [0; 8];
         loop {
-            if f.read(&mut x_buf)? != 8 || f.read(&mut y_buf)? != 8 {
+            let bytes_read = f.read(&mut buf).context("Unable to read from flake file")?;
+            if bytes_read == 0 {
                 return Result::Ok(points);
             }
 
-            let x: f64 = f64::from_be_bytes(x_buf);
-            let y: f64 = f64::from_be_bytes(y_buf);
-            points.push(Point { x, y });
+            for i in (0..bytes_read).step_by(16) {
+                f64_buf.clone_from_slice(&buf[i..i+8]);
+                let x: f64 = f64::from_be_bytes(f64_buf);
+                f64_buf.clone_from_slice(&buf[i+8..i+16]);
+                let y: f64 = f64::from_be_bytes(f64_buf);
+                points.push(Point { x, y });
+            }
         }
     }
 
