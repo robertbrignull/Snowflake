@@ -3,7 +3,7 @@ use std::f64::consts::PI;
 use anyhow::{Context, Result};
 use rand::{Rng, RngCore};
 
-use crate::bsp::BSP;
+use crate::cover_tree::CoverTree;
 use crate::flake::Flake;
 use crate::point::Point;
 
@@ -26,17 +26,17 @@ impl Symmetry {
 }
 
 pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>) -> Result<()> {
-    let mut bsp = BSP::from_flake(flake)?;
+    let mut tree = CoverTree::from_flake(flake)?;
 
     let num_points = num_points.unwrap_or(1000);
     let mut rng = rand::thread_rng();
 
     for i in 0..num_points {
-        let construction_radius = bsp.get_farthest_distance() + 5.0;
+        let construction_radius = tree.get_farthest_distance() + 5.0;
         let destruction_radius = construction_radius * 2.0;
 
         let mut point = new_point(construction_radius, &mut rng);
-        let mut distance_to_flake = bsp.get_nearest_point(point).distance(point);
+        let mut distance_to_flake = tree.get_nearest_point(point).distance(point);
 
         while distance_to_flake > 2.0 {
             let r = rng.gen_range(0.0..PI * 2.0);
@@ -47,11 +47,11 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
                 point = new_point(construction_radius, &mut rng);
             }
 
-            distance_to_flake = bsp.get_nearest_point(point).distance(point);
+            distance_to_flake = tree.get_nearest_point(point).distance(point);
         }
 
         println!("Adding point {}/{} : {}", i, num_points, point);
-        bsp.add_point(point);
+        tree.add_point(point);
         flake
             .add_point(point)
             .context("Unable to add points to flake")?;

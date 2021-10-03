@@ -3,7 +3,7 @@ extern crate anyhow;
 extern crate image;
 extern crate rand;
 
-mod bsp;
+mod cover_tree;
 mod flake;
 mod generate;
 mod point;

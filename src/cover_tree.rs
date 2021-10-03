@@ -3,13 +3,13 @@ use anyhow::{Context, Result};
 use crate::flake::Flake;
 use crate::point::Point;
 
-pub struct BSP {
+pub struct CoverTree {
     points: Vec<Point>,
     farthest_distance: f64,
 }
 
-impl BSP {
-    pub fn from_flake(flake: &Flake) -> Result<BSP> {
+impl CoverTree {
+    pub fn from_flake(flake: &Flake) -> Result<CoverTree> {
         let mut points = flake.get_points().context("Unable to get flake points")?;
         if points.len() == 0 {
             points.push(Point::ZERO);
@@ -23,7 +23,7 @@ impl BSP {
             }
         }
 
-        return Result::Ok(BSP {
+        return Result::Ok(CoverTree {
             points,
             farthest_distance,
         });
