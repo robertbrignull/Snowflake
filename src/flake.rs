@@ -39,9 +39,9 @@ impl Flake {
             }
 
             for i in (0..bytes_read).step_by(16) {
-                f64_buf.clone_from_slice(&buf[i..i+8]);
+                f64_buf.clone_from_slice(&buf[i..i + 8]);
                 let x: f64 = f64::from_be_bytes(f64_buf);
-                f64_buf.clone_from_slice(&buf[i+8..i+16]);
+                f64_buf.clone_from_slice(&buf[i + 8..i + 16]);
                 let y: f64 = f64::from_be_bytes(f64_buf);
                 points.push(Point { x, y });
             }
