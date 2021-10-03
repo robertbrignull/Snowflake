@@ -28,6 +28,13 @@ impl Symmetry {
 pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>) -> Result<()> {
     let mut tree = CoverTree::from_flake(flake)?;
 
+    if tree.is_empty() {
+        tree.add_point(Point::ZERO);
+        flake
+            .add_point(Point::ZERO)
+            .context("Unable to add point to flake")?;
+    }
+
     let num_points = num_points.unwrap_or(1000);
     let mut rng = rand::thread_rng();
 
@@ -54,7 +61,7 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
         tree.add_point(point);
         flake
             .add_point(point)
-            .context("Unable to add points to flake")?;
+            .context("Unable to add point to flake")?;
     }
 
     flake.flush().context("Unable to flush flake")?;

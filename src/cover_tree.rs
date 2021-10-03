@@ -10,10 +10,7 @@ pub struct CoverTree {
 
 impl CoverTree {
     pub fn from_flake(flake: &Flake) -> Result<CoverTree> {
-        let mut points = flake.get_points().context("Unable to get flake points")?;
-        if points.len() == 0 {
-            points.push(Point::ZERO);
-        }
+        let points = flake.get_points().context("Unable to get flake points")?;
 
         let mut farthest_distance = 0.0;
         for point in &points {
@@ -27,6 +24,10 @@ impl CoverTree {
             points,
             farthest_distance,
         });
+    }
+
+    pub fn is_empty(&self) -> bool {
+        return self.points.len() == 0;
     }
 
     pub fn add_point(&mut self, point: Point) {
