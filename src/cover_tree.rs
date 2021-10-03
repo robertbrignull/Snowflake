@@ -12,12 +12,9 @@ impl CoverTree {
     pub fn from_flake(flake: &Flake) -> Result<CoverTree> {
         let points = flake.get_points().context("Unable to get flake points")?;
 
-        let mut farthest_distance = 0.0;
+        let mut farthest_distance: f64 = 0.0;
         for point in &points {
-            let d = point.distance(Point::ZERO);
-            if d > farthest_distance {
-                farthest_distance = d;
-            }
+            farthest_distance = farthest_distance.max(point.distance(Point::ZERO));
         }
 
         return Result::Ok(CoverTree {
@@ -32,11 +29,7 @@ impl CoverTree {
 
     pub fn add_point(&mut self, point: Point) {
         self.points.push(point);
-
-        let d = point.distance(Point::ZERO);
-        if d > self.farthest_distance {
-            self.farthest_distance = d;
-        }
+        self.farthest_distance = self.farthest_distance.max(point.distance(Point::ZERO));
     }
 
     pub fn get_nearest_point(&self, point: Point) -> Point {
