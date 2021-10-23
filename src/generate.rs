@@ -57,7 +57,9 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
             distance_to_flake = tree.get_nearest(&point).unwrap().1;
         }
 
-        println!("Adding point {}/{} : {}", i, num_points, point);
+        if i % 1000 == 0 {
+            println!("Adding point {}/{}", i, num_points);
+        }
         tree.add_point(&point);
         flake
             .add_point(&point)
