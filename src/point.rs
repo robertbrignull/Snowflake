@@ -7,11 +7,11 @@ pub struct Point {
 impl Point {
     pub const ZERO: Point = Point { x: 0.0, y: 0.0 };
 
-    pub fn distance(&self, other_point: Point) -> f64 {
+    pub fn distance(&self, other_point: &Point) -> f64 {
         return self.distance_2(other_point).sqrt();
     }
 
-    pub fn distance_2(&self, other_point: Point) -> f64 {
+    pub fn distance_2(&self, other_point: &Point) -> f64 {
         return (self.x - other_point.x).powf(2.0) + (self.y - other_point.y).powf(2.0);
     }
 }

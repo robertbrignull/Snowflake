@@ -29,9 +29,9 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
     let mut tree = QuadTree::from_flake(flake)?;
 
     if tree.is_empty() {
-        tree.add_point(Point::ZERO);
+        tree.add_point(&Point::ZERO);
         flake
-            .add_point(Point::ZERO)
+            .add_point(&Point::ZERO)
             .context("Unable to add point to flake")?;
     }
 
@@ -43,24 +43,24 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
         let destruction_radius = construction_radius * 2.0;
 
         let mut point = new_point(construction_radius, &mut rng);
-        let mut distance_to_flake = tree.get_nearest(point).1;
+        let mut distance_to_flake = tree.get_nearest(&point).unwrap().1;
 
         while distance_to_flake > 2.0 {
             let r = rng.gen_range(0.0..PI * 2.0);
             point.x += r.sin() * distance_to_flake;
             point.y += r.cos() * distance_to_flake;
 
-            if point.distance(Point::ZERO) > destruction_radius {
+            if point.distance(&Point::ZERO) > destruction_radius {
                 point = new_point(construction_radius, &mut rng);
             }
 
-            distance_to_flake = tree.get_nearest(point).1;
+            distance_to_flake = tree.get_nearest(&point).unwrap().1;
         }
 
         println!("Adding point {}/{} : {}", i, num_points, point);
-        tree.add_point(point);
+        tree.add_point(&point);
         flake
-            .add_point(point)
+            .add_point(&point)
             .context("Unable to add point to flake")?;
     }
 

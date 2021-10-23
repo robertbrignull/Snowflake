@@ -50,8 +50,8 @@ impl Flake {
 
     // Add a point to the flake. This may write the data out to the flake
     // file or may buffer internally. See also the flush method.
-    pub fn add_point(&mut self, point: Point) -> Result<()> {
-        self.buffered_points.push(point);
+    pub fn add_point(&mut self, point: &Point) -> Result<()> {
+        self.buffered_points.push(*point);
         if self.buffered_points.len() >= MAX_BUFFERED_POINTS {
             self.flush().context("Unable to flush")?;
         }
@@ -103,7 +103,7 @@ mod tests {
             let flake_file = format!("{}/test.flake", test_dir);
             let mut flake = Flake::new(&flake_file);
             flake
-                .add_point(Point { x: 0.0, y: 0.0 })
+                .add_point(&Point { x: 0.0, y: 0.0 })
                 .expect("Unable to add point");
             flake.flush().expect("Unable to flush");
         });
@@ -116,14 +116,14 @@ mod tests {
 
             let mut flake = Flake::new(&flake_file);
             flake
-                .add_point(Point { x: 0.0, y: 0.0 })
+                .add_point(&Point { x: 0.0, y: 0.0 })
                 .expect("Unable to add point");
             flake.flush().expect("Unable to flush");
 
             // Do the same thing but with a new flake object
             let mut flake = Flake::new(&flake_file);
             flake
-                .add_point(Point { x: 1.0, y: 1.0 })
+                .add_point(&Point { x: 1.0, y: 1.0 })
                 .expect("Unable to add point");
             flake.flush().expect("Unable to flush");
         });
@@ -138,7 +138,7 @@ mod tests {
             let num_points = 1500;
             for i in 0..num_points {
                 flake
-                    .add_point(Point {
+                    .add_point(&Point {
                         x: i as f64,
                         y: i as f64,
                     })
@@ -182,7 +182,7 @@ mod tests {
             }
 
             let write_time = time_func(|| {
-                for point in points {
+                for point in &points {
                     flake.add_point(point).expect("Unable to add point");
                 }
                 flake.flush().expect("Unable to flush");
