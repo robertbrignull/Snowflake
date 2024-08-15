@@ -7,6 +7,8 @@ use crate::flake::Flake;
 use crate::point::Point;
 use crate::quad_tree::QuadTree;
 
+const POINT_DIAMETER: f64 = 1.0;
+
 pub enum Symmetry {
     None,
     Rotational(u32),
@@ -45,7 +47,7 @@ pub fn generate(flake: &mut Flake, _symmetry: Symmetry, num_points: Option<u32>)
         let mut point = new_point(construction_radius, &mut rng);
         let mut distance_to_flake = tree.get_nearest(&point).unwrap().1;
 
-        while distance_to_flake > 2.0 {
+        while distance_to_flake > POINT_DIAMETER {
             let r = rng.gen_range(0.0..PI * 2.0);
             point.x += r.sin() * distance_to_flake;
             point.y += r.cos() * distance_to_flake;
